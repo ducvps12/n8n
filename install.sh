@@ -12,7 +12,7 @@ NC='\e[0m'
 # URL cua script chinh (thay doi thanh link thuc te)
 SCRIPT_URL="https://raw.githubusercontent.com/ducvps12/n8n/refs/heads/main/n8n-host.sh"
 # URL cua file template
-TEMPLATE_URL="https://raw.githubusercontent.com/ducvps12/n8n/refs/heads/main/import-workflow-credentials.json"
+TEMPLATE_URL="https://cloudfly.vn/download/n8n-host/templates/import-workflow-credentials.json"
 
 SCRIPT_NAME="n8n-host"
 INSTALL_DIR="/usr/local/bin"
