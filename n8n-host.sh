@@ -264,6 +264,7 @@ get_domain_and_dns_check_reusable() {
     if [[ -z "$new_domain_input" ]]; then
       echo -e "${RED}Tên miền không được để trống. Vui lòng nhập lại.${NC}"
       continue
+      fi
     if [[ -n "$current_domain_to_avoid" && "$new_domain_input" == "$current_domain_to_avoid" ]]; then
       echo -e "${YELLOW}Tên miền mới (${new_domain_input}) trùng với tên miền hiện tại (${current_domain_to_avoid}).${NC}"
       echo -e "${YELLOW}Vui lòng nhập một tên miền khác.${NC}"
