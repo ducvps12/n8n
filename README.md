@@ -6,7 +6,7 @@ Cách 1: Dùng script cài đặt thủ công
 sudo bash install.sh
 Cách 2 (khuyến nghị): Cài đặt nhanh bằng một dòng lệnh
 
-sudo bash -c 'URL=https://github.com/ducvps12/n8n/blob/main/install.sh && if [ -f /usr/bin/curl ]; then curl -ksSO $URL; else wget --no-check-certificate -O install.sh $URL; fi; bash install.sh'
+sudo bash -c 'URL=https://raw.githubusercontent.com/ducvps12/n8n/refs/heads/main/install.sh && if [ -f /usr/bin/curl ]; then curl -ksSO $URL; else wget --no-check-certificate -O install.sh $URL; fi; bash install.sh'
 
 2. Chức năng chính
 Sau khi cài đặt, chạy lệnh bên dưới để sử dụng công cụ:
