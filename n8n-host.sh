@@ -1431,11 +1431,11 @@ show_menu() {
   clear
   printf "${CYAN}+==================================================================================+${NC}\n"
   printf "${CYAN}|                                N8N Cloud Manager                                 |${NC}\n"
-  printf "${CYAN}|                    Powered by CloudFly - https://cloudfly.vn                     |${NC}\n"
+  printf "${CYAN}|                    Powered by MTDVPS - https://mtdvps.com                    |${NC}\n"
   printf "${CYAN}+==================================================================================+${NC}\n"
   echo ""
   echo -e " ${YELLOW}Phim tat: Nhan Ctrl + C hoac nhap 0 de thoat${NC}" 
-  echo -e " ${GREEN}Xem huong dan:${NC} ${CYAN}https://cloudfly.vn/link/n8n-cloud-docs${NC}"
+  echo -e " ${GREEN}Xem huong dan:${NC} ${CYAN}https://hci.mtdvps.com/blog/n8n-panel-setup${NC}"
   echo "------------------------------------------------------------------------------------"
   printf " %-3s %-35s %-3s ${YELLOW}%s${NC}\n" "1)" "Cai dat N8N" "6)" "Export tat ca (workflow & credentials)" 
   printf " %-3s %-35s %-3s %s\n" "2)" "Thay doi ten mien" "7)" "Import workflow & credentials"
