@@ -121,7 +121,7 @@ install_script() {
     fi
     echo -e "${YELLOW}[*] Tai ve file template...${NC}"
 
-    curl -fsSL -o "/n8n-templates/${TEMPLATE_FILE_NAME}" "https://cloudfly.vn/download/n8n-host/templates/${TEMPLATE_FILE_NAME}"
+    curl -fsSL -o "/n8n-templates/${TEMPLATE_FILE_NAME}" "https://raw.githubusercontent.com/ducvps12/n8n/refs/heads/main/${TEMPLATE_FILE_NAME}"
     if [[ $? -ne 0 ]]; then
         echo -e "${RED}[!] Loi: Khong the tai ve file template.${NC}"
         exit 1
