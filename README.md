@@ -2,22 +2,16 @@ Hướng dẫn sử dụng công cụ n8n-host
 1. Cài đặt công cụ
 Cách 1: Dùng script cài đặt thủ công
 
-bash
-Sao chép
-Chỉnh sửa
+
 sudo bash install.sh
 Cách 2 (khuyến nghị): Cài đặt nhanh bằng một dòng lệnh
 
-bash
-Sao chép
-Chỉnh sửa
 sudo bash -c 'URL=https://cloudfly.vn/download/n8n-host/install.sh && if [ -f /usr/bin/curl ]; then curl -ksSO $URL; else wget --no-check-certificate -O install.sh $URL; fi; bash install.sh'
+
 2. Chức năng chính
 Sau khi cài đặt, chạy lệnh bên dưới để sử dụng công cụ:
 
-bash
-Sao chép
-Chỉnh sửa
+
 n8n-host
 Menu chức năng sẽ hiển thị gồm:
 
@@ -63,7 +57,4 @@ Chọn 9 → Xóa toàn bộ dữ liệu và tiến hành cài đặt lại N8N 
 4. Gỡ bỏ công cụ
 Để gỡ bỏ hoàn toàn công cụ, chạy:
 
-bash
-Sao chép
-Chỉnh sửa
 n8n-host --uninstall
