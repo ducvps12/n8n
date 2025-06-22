@@ -9,31 +9,22 @@ YELLOW='\e[1;33m'
 CYAN='\e[1;36m'
 NC='\e[0m'
 
-# URL cua script chinh (thay doi thanh link thuc te)
-SCRIPT_URL="https://raw.githubusercontent.com/ducvps12/n8n/refs/heads/main/n8n-host.sh"
-# URL cua file template
-TEMPLATE_URL="https://cloudfly.vn/download/n8n-host/templates/import-workflow-credentials.json"
+# !!! THAY DOI URL NAY thanh link tai script cua ban !!!
+SCRIPT_URL="https://raw.githubusercontent.com/ducvps12/n8n/refs/heads/main/n8n-host.sh" # VI DU: Link raw GitHub
 
-SCRIPT_NAME="n8n-host"
+SCRIPT_NAME="n8n-host" #path/to/script/name
+# Khuyen nghi dung /usr/local/bin cho script tuy chinh
 INSTALL_DIR="/usr/local/bin"
 INSTALL_PATH="${INSTALL_DIR}/${SCRIPT_NAME}"
-TEMP_SCRIPT="/tmp/${SCRIPT_NAME}.sh-$(date +%s%N)-${RANDOM}"
-TEMPLATE_FILE_NAME="import-workflow-credentials.json"
-TEMPLATE_DIR="/n8n-templates"
-INSTANCES_DIR="/n8n-instances"
-
-# --- Ham phu tro ---
-generate_random_string() {
-    local length="${1:-16}"
-    LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c "$length" 2>/dev/null
-}
+TEMP_SCRIPT="/tmp/${SCRIPT_NAME}.sh.$$" 
+TEMPLATE_FILE_NAME="import-workflow-credentials.json" 
 
 # --- Ham kiem tra quyen root ---
 check_root() {
-    if [[ $EUID -ne 0 ]]; then
-        echo -e "\n${RED}[!] Loi: Ban can chay script cai dat nay voi quyen root (sudo).${NC}\n"
-        exit 1
-    fi
+  if [[ $EUID -ne 0 ]]; then
+    echo -e "\n${RED}[!] Loi: Ban can chay script cai dat nay voi quyen root (sudo).${NC}\n"
+    exit 1
+  fi
 }
 
 # --- Ham kiem tra lenh (curl hoac wget) ---
@@ -49,63 +40,38 @@ check_downloader() {
     echo -e "${GREEN}[*] Su dung '$DOWNLOADER' de tai file.${NC}"
 }
 
-# --- Ham tai file ---
-download_file() {
-    local url="$1"
-    local output="$2"
-    echo -e "${YELLOW}[*] Dang tai file tu: ${url}${NC}"
+# --- Ham tai script ---
+download_script() {
+    echo -e "${YELLOW}[*] Dang tai script tu: ${SCRIPT_URL}${NC}"
     if [[ "$DOWNLOADER" == "curl" ]]; then
-        curl -fsSL -o "$output" "$url"
+        # Tai file bang curl, theo doi redirect (-L), bao loi neu fail (-f), im lang (-s), output vao file tam (-o)
+        curl -fsSL -o "$TEMP_SCRIPT" "$SCRIPT_URL"
         local download_status=$?
-    else
-        wget -qO "$output" "$url"
+    else # wget
+        # Tai file bang wget, output vao file tam (-O), im lang (-q)
+        wget -qO "$TEMP_SCRIPT" "$SCRIPT_URL"
         local download_status=$?
     fi
 
     if [[ $download_status -ne 0 ]]; then
-        echo -e "${RED}[!] Loi: Tai file that bai (kiem tra URL hoac ket noi mang).${NC}"
-        rm -f "$output"
-        return 1
-    fi
-
-    if [[ ! -s "$output" ]]; then
-        echo -e "${RED}[!] Loi: File tai ve rong (kiem tra URL).${NC}"
-        rm -f "$output"
-        return 1
-    fi
-
-    echo -e "${GREEN}[+] Tai file thanh cong.${NC}"
-    return 0
-}
-
-# --- Ham go bo cai dat ---
-uninstall_script() {
-    check_root
-    echo -e "${YELLOW}[*] Bat dau qua trinh go bo ${SCRIPT_NAME}...${NC}"
-
-    if [[ ! -f "$INSTALL_PATH" ]]; then
-        echo -e "${YELLOW}[!] Khong tim thay ${SCRIPT_NAME} tai ${INSTALL_PATH}. Khong co gi de go bo.${NC}"
-        exit 0
-    fi
-
-    echo -e "${YELLOW}[*] Xoa file ${INSTALL_PATH}...${NC}"
-    if ! sudo rm -f "$INSTALL_PATH"; then
-        echo -e "${RED}[!] Loi: Khong the xoa ${INSTALL_PATH}.${NC}"
+        echo -e "${RED}[!] Loi: Tai script that bai (kiem tra URL hoac ket noi mang).${NC}"
+        rm -f "$TEMP_SCRIPT" # Xoa file tam neu co loi
         exit 1
     fi
 
-    echo -e "${YELLOW}[*] Xoa thu muc ${TEMPLATE_DIR} (neu trong)...${NC}"
-    if [[ -d "$TEMPLATE_DIR" && -z "$(ls -A "$TEMPLATE_DIR")" ]]; then
-        sudo rm -rf "$TEMPLATE_DIR"
+    # Kiem tra xem file tai ve co noi dung khong
+    if [[ ! -s "$TEMP_SCRIPT" ]]; then
+        echo -e "${RED}[!] Loi: File tai ve rong (kiem tra URL).${NC}"
+        rm -f "$TEMP_SCRIPT"
+        exit 1
     fi
 
-    echo -e "\n${GREEN}[+] Go bo ${SCRIPT_NAME} thanh cong!${NC}"
-    exit 0
+    echo -e "${GREEN}[+] Tai script thanh cong.${NC}"
 }
 
 # --- Ham cai dat ---
 install_script() {
-    echo -e "${YELLOW}[*] Bat dau qua trinh cai dat ${SCRIPT_NAME}...${NC}"
+    echo -e "${YELLOW}[*] Bat dau qua trinh cai dat...${NC}"
 
     # 1. Kiem tra quyen root
     check_root
@@ -113,20 +79,13 @@ install_script() {
     # 2. Kiem tra cong cu tai file
     check_downloader
 
-    # 3. Kiem tra quyen ghi thu muc cai dat
-    if [[ ! -w "$INSTALL_DIR" ]]; then
-        echo -e "${RED}[!] Loi: Khong co quyen ghi vao ${INSTALL_DIR}.${NC}"
-        exit 1
-    fi
+    # 3. Tai script ve file tam
+    download_script
 
-    # 4. Tai script chinh
-    if ! download_file "$SCRIPT_URL" "$TEMP_SCRIPT"; then
-        exit 1
-    fi
-
-    # 5. Tao thu muc cai dat neu chua co
+    # 4. Tao thu muc cai dat neu chua co
     if [[ ! -d "$INSTALL_DIR" ]]; then
         echo -e "${YELLOW}[*] Tao thu muc cai dat: ${INSTALL_DIR}${NC}"
+        # Su dung sudo vi tao thu muc trong he thong
         if ! sudo mkdir -p "$INSTALL_DIR"; then
             echo -e "${RED}[!] Loi: Khong the tao thu muc ${INSTALL_DIR}.${NC}"
             rm -f "$TEMP_SCRIPT"
@@ -134,101 +93,60 @@ install_script() {
         fi
     fi
 
-    # 6. Di chuyen script vao thu muc cai dat
+    # 5. Di chuyen script vao thu muc cai dat
     echo -e "${YELLOW}[*] Di chuyen script den: ${INSTALL_PATH}${NC}"
     if ! sudo mv "$TEMP_SCRIPT" "$INSTALL_PATH"; then
         echo -e "${RED}[!] Loi: Khong the di chuyen script den ${INSTALL_PATH}.${NC}"
-        rm -f "$TEMP_SCRIPT"
+        rm -f "$TEMP_SCRIPT" # Van co gang xoa file tam
         exit 1
     fi
 
-    # 7. Cap quyen thuc thi cho script
+    # 6. Cap quyen thuc thi cho script
     echo -e "${YELLOW}[*] Cap quyen thuc thi cho script...${NC}"
     if ! sudo chmod +x "$INSTALL_PATH"; then
         echo -e "${RED}[!] Loi: Khong the cap quyen thuc thi cho ${INSTALL_PATH}.${NC}"
-        sudo rm -f "$INSTALL_PATH"
+        # Co the can go bo file da copy neu khong cap quyen duoc? Tuy chon.
+        # sudo rm -f "$INSTALL_PATH"
         exit 1
     fi
 
-    # 8. Tao thu muc n8n-templates va n8n-instances
-    echo -e "${YELLOW}[*] Tao thu muc ${TEMPLATE_DIR} va ${INSTANCES_DIR}...${NC}"
-    for dir in "$TEMPLATE_DIR" "$INSTANCES_DIR"; do
-        if [[ ! -d "$dir" ]]; then
-            if ! sudo mkdir -p "$dir"; then
-                echo -e "${RED}[!] Loi: Khong the tao thu muc ${dir}.${NC}"
-                sudo rm -f "$INSTALL_PATH"
-                exit 1
-            fi
-            sudo chmod 755 "$dir"
+    # 7. Tao thu muc n8n-templates ngang hang voi root va tai ve file template
+    echo -e "${YELLOW}[*] Tao thu muc n8n-templates...${NC}"
+    if [[ ! -d "/n8n-templates" ]]; then
+        sudo mkdir -p "/n8n-templates"
+        if [[ $? -ne 0 ]]; then
+            echo -e "${RED}[!] Loi: Khong the tao thu muc /n8n-templates.${NC}"
+            exit 1
         fi
-    done
-
-    # 9. Tai file template
+    fi
     echo -e "${YELLOW}[*] Tai ve file template...${NC}"
-    local temp_template="/tmp/${TEMPLATE_FILE_NAME}-$(generate_random_string)"
-    if ! download_file "$TEMPLATE_URL" "$temp_template"; then
-        sudo rm -f "$INSTALL_PATH"
+
+    curl -fsSL -o "/n8n-templates/${TEMPLATE_FILE_NAME}" "https://cloudfly.vn/download/n8n-host/templates/${TEMPLATE_FILE_NAME}"
+    if [[ $? -ne 0 ]]; then
+        echo -e "${RED}[!] Loi: Khong the tai ve file template.${NC}"
         exit 1
     fi
-
-    # Kiem tra noi dung file template co phai JSON hop le khong
-    if ! jq . "$temp_template" >/dev/null 2>&1; then
-        echo -e "${RED}[!] Loi: File template tai ve khong phai JSON hop le.${NC}"
-        rm -f "$temp_template"
-        sudo rm -f "$INSTALL_PATH"
-        exit 1
-    fi
-
-    # Di chuyen file template vao thu muc
-    if ! sudo mv "$temp_template" "${TEMPLATE_DIR}/${TEMPLATE_FILE_NAME}"; then
-        echo -e "${RED}[!] Loi: Khong the di chuyen file template den ${TEMPLATE_DIR}/${TEMPLATE_FILE_NAME}.${NC}"
-        sudo rm -f "$INSTALL_PATH"
-        exit 1
-    fi
-    sudo chmod 644 "${TEMPLATE_DIR}/${TEMPLATE_FILE_NAME}"
-
-    # 10. Kiem tra lai
+    
+    # 8. Kiem tra lai
     if [[ -f "$INSTALL_PATH" && -x "$INSTALL_PATH" ]]; then
-        echo -e "\n${GREEN}[+++] Cai dat ${SCRIPT_NAME} thanh cong!${NC}"
+        echo -e "\n${GREEN}[+++] Cai dat thanh cong! ${NC}"
         echo -e "Ban co the chay cong cu bang lenh: ${CYAN}${SCRIPT_NAME}${NC}"
-        echo -e "De go bo, chay lenh: ${CYAN}bash $0 --uninstall${NC}"
-        echo -e "De tao instance N8N moi, chay: ${CYAN}${SCRIPT_NAME}${NC} va chon tuy chon 11."
+        echo -e "De go bo, chay lenh: ${CYAN}${SCRIPT_NAME} --uninstall${NC}"
     else
         echo -e "\n${RED}[!] Cai dat that bai. Khong tim thay file thuc thi tai ${INSTALL_PATH}.${NC}"
-        sudo rm -f "$INSTALL_PATH"
         exit 1
     fi
 }
 
-# --- Xu ly tham so dong lenh ---
-case "$1" in
-    --uninstall)
-        uninstall_script
-        ;;
-    --force-install)
-        check_root
-        echo -e "${YELLOW}[*] Buoc cai dat lai ${SCRIPT_NAME}...${NC}"
-        sudo rm -f "$INSTALL_PATH"
-        install_script
-        ;;
-    "")
-        if [[ -f "$INSTALL_PATH" ]]; then
-            echo -e "${YELLOW}[!] Cong cu '${SCRIPT_NAME}' da duoc cai dat tai '${INSTALL_PATH}'.${NC}"
-            echo -e "Neu ban muon cai dat lai, hay chay: ${CYAN}bash $0 --force-install${NC}"
-            echo -e "Neu ban muon go bo, hay chay: ${CYAN}bash $0 --uninstall${NC}"
-            exit 1
-        else
-            install_script
-        fi
-        ;;
-    *)
-        echo -e "${RED}[!] Tham so khong hop le: $1${NC}"
-        echo -e "Cach dung:"
-        echo -e "  Cai dat: ${CYAN}bash $0${NC}"
-        echo -e "  Cai dat lai: ${CYAN}bash $0 --force-install${NC}"
-        echo -e "  Go bo: ${CYAN}bash $0 --uninstall${NC}"
-        exit 1
-        ;;
-esac
+# Kiem tra xem script da duoc cai dat chua
+if [[ -f "$INSTALL_PATH" ]]; then
+    echo -e "${YELLOW}[!] Cong cu '${SCRIPT_NAME}' duong nhu da duoc cai dat tai '${INSTALL_PATH}'.${NC}"
+    echo -e "Neu ban muon cai dat lai, hay chay: ${CYAN}bash $0 --force-install${NC}"
+    echo -e "Neu ban muon go bo, hay chay: ${CYAN}${SCRIPT_NAME} --uninstall${NC}"
+    exit 1
+else
+    # Neu chua cai dat, tien hanh cai dat
+    install_script
+fi
 
 exit 0
