@@ -10,7 +10,7 @@ CYAN='\e[1;36m'
 NC='\e[0m'
 
 # !!! THAY DOI URL NAY thanh link tai script cua ban !!!
-SCRIPT_URL="https://cloudfly.vn/download/n8n-host/n8n-host.sh" # VI DU: Link raw GitHub
+SCRIPT_URL="https://github.com/ducvps12/n8n/blob/main/n8n-host.sh" # VI DU: Link raw GitHub
 
 SCRIPT_NAME="n8n-host" #path/to/script/name
 # Khuyen nghi dung /usr/local/bin cho script tuy chinh
