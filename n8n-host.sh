@@ -1,4 +1,3 @@
-```bash
 #!/bin/bash
 
 # --- Dinh nghia mau sac ---
